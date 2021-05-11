@@ -31,7 +31,11 @@ class Communication {
 
     try {
       await http.get(uri);
-    } catch (e) {
+    } on http.ClientException catch(e) { // This happens since the XL http server is badly implemented, no problem though
+      developer.log('ClientException: ' + uri.toString(), name: 'com.goatsoft.xl_otpsend', error: e);
+      return true; 
+    } 
+    catch (e) {
       developer.log('could not send to: ' + uri.toString(), name: 'com.goatsoft.xl_otpsend', error: e);
       return false;
     }

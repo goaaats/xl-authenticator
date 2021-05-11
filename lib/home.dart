@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:otp/otp.dart';
 import 'dart:async';
 
 import 'package:xl_otpsend/account.dart';
 import 'package:xl_otpsend/communication.dart';
+import 'package:xl_otpsend/generalsetting.dart';
 import 'package:xl_otpsend/set.dart';
 
 class HomePage extends StatefulWidget {
@@ -63,14 +65,28 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  void setup() async {
+  Future<void> setup() async {
     var savedAccount = await SavedAccount.getSaved();
 
     if (savedAccount != null) {
       savedSecret = savedAccount.secret as String;
       showNewOtp();
 
-      await Communication.sendOtp(_currentOtp);
+      var sent = await Communication.sendOtp(_currentOtp);
+      var isClose = await GeneralSetting.getIsAutoClose();
+
+      if (sent && isClose) {
+        Fluttertoast.showToast(
+            msg: "OTP sent!",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0);
+
+        SystemNavigator.pop();
+      }
     } else {
       debugPrint("No secret found, opening settings");
 
@@ -160,7 +176,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   } else {
                     ScaffoldMessenger.of(context)
                       ..removeCurrentSnackBar()
-                      ..showSnackBar(SnackBar(content: Text("IP not set or connection failed")));
+                      ..showSnackBar(SnackBar(
+                          content: Text("IP not set or connection failed")));
                   }
                 },
                 child: Text('Resend to XL'),

@@ -39,6 +39,8 @@ dependencies:
 
   http: ^0.13.3
 
+  fluttertoast: ^8.0.6
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
