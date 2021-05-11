@@ -1,4 +1,7 @@
+import 'dart:developer' as developer;
+
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 class Communication {
   static const String IP_KEY = "IP";
@@ -18,12 +21,21 @@ class Communication {
     await prefs.setString(IP_KEY, ip);
   }
 
-  static Future<void> sendOtp(String otp) async {
+  static Future<bool> sendOtp(String otp) async {
     var ip = await Communication.getSavedIp();
 
     if (ip == null)
-      return;
+      return false;
 
-      
+    var uri = Uri.http("$ip:4646", "ffxivlauncher/$otp");
+
+    try {
+      await http.get(uri);
+    } catch (e) {
+      developer.log('could not send to: ' + uri.toString(), name: 'com.goatsoft.xl_otpsend', error: e);
+      return false;
+    }
+    
+    return true;
   }
 }

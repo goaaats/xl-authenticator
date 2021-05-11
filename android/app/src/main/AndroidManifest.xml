@@ -2,7 +2,8 @@
     package="com.goatsoft.xl_otpsend">
    <application
         android:label="XL Authenticator"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:usesCleartextTraffic="true">
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"

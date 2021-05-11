@@ -4,8 +4,8 @@ import 'package:otp/otp.dart';
 import 'dart:async';
 
 import 'package:xl_otpsend/account.dart';
+import 'package:xl_otpsend/communication.dart';
 import 'package:xl_otpsend/set.dart';
-
 
 class HomePage extends StatefulWidget {
   HomePage({Key? key, this.title}) : super(key: key);
@@ -78,6 +78,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     if (savedAccount != null) {
       savedSecret = savedAccount.secret as String;
       showNewOtp();
+
+      await Communication.sendOtp(_currentOtp);
     } else {
       debugPrint("No secret found, opening settings");
 
@@ -115,7 +117,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     if (savedSecret == null) {
       return "???";
     }
-    
+
     return OTP.generateTOTPCodeString(
         savedSecret as String, DateTime.now().millisecondsSinceEpoch,
         length: 6, interval: 30, algorithm: Algorithm.SHA1, isGoogle: true);
@@ -179,6 +181,25 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   value: controller.value,
                   semanticsLabel: 'Linear progress indicator',
                 )),
+            Padding(
+              padding: const EdgeInsets.only(top: 15.0),
+              child: ElevatedButton(
+                onPressed: () async {
+                  var res = await Communication.sendOtp(_currentOtp);
+
+                  if (res) {
+                    ScaffoldMessenger.of(context)
+                      ..removeCurrentSnackBar()
+                      ..showSnackBar(SnackBar(content: Text("Sent!")));
+                  } else {
+                    ScaffoldMessenger.of(context)
+                      ..removeCurrentSnackBar()
+                      ..showSnackBar(SnackBar(content: Text("IP not set or connection failed")));
+                  }
+                },
+                child: Text('Resend to XL'),
+              ),
+            )
           ],
         ),
       ),
