@@ -185,7 +185,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               padding: const EdgeInsets.only(top: 15.0),
               child: ElevatedButton(
                 onPressed: () async {
-                  var res = await Communication.sendOtp(_currentOtp);
+                  var res = await Communication.sendOtp(getCode());
 
                   if (res) {
                     ScaffoldMessenger.of(context)
