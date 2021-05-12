@@ -244,7 +244,7 @@ class _SettingsPageState extends State<SettingsPage> {
         saved = SavedAccount.parse(result.data);
         break;
       case ScanResultType.Raw:
-        saved = SavedAccount.unnamed(result.data);
+        saved = SavedAccount.unnamed(result.data.toString().toUpperCase().replaceAll(" ", ""));
         break;
     }
 
