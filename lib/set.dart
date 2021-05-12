@@ -1,6 +1,8 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:prompt_dialog/prompt_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'package:xl_otpsend/account.dart';
 import 'package:xl_otpsend/communication.dart';
@@ -16,6 +18,8 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
+  static const String REPO_LINK = "https://github.com/goaaats/xl-authenticator";
+
   late bool isRestartChecked = false;
 
   @override
@@ -31,6 +35,9 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
+    TextStyle defaultStyle = TextStyle(color: Colors.grey, fontSize: 13.0);
+    TextStyle linkStyle = TextStyle(color: Colors.blue, fontSize: 13.0);
+
     return Scaffold(
       appBar: AppBar(
         title: Text("Settings"),
@@ -97,10 +104,49 @@ class _SettingsPageState extends State<SettingsPage> {
                           });
                         })
                   ],
-                ))
+                )),
+            Padding(
+                padding: EdgeInsets.only(top: 50, left: 10, right: 10),
+                child: RichText(
+                    text: TextSpan(
+                  style: defaultStyle,
+                  children: <TextSpan>[
+                    TextSpan(text: 'By goat, see '),
+                    TextSpan(
+                        text: 'licenses',
+                        style: linkStyle,
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () {
+                            showLicensePage(
+                                context: context,
+                                applicationName: "XL Authenticator",
+                                applicationLegalese:
+                                    "Automatic OTPs for XIVLauncher",
+                                applicationIcon: Padding(
+                                    padding:
+                                        EdgeInsets.only(left: 100, right: 100),
+                                    child: Image(
+                                        image: AssetImage('assets/logo.png'))));
+                          }),
+                    TextSpan(text: ' and '),
+                    TextSpan(
+                        text: 'source code',
+                        style: linkStyle,
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () async {
+                            await _openRepoLink();
+                          }),
+                  ],
+                ))),
           ],
         ),
       ),
+    );
+  }
+
+  Future<void> _openRepoLink() async {
+    await launch(
+      REPO_LINK,
     );
   }
 
