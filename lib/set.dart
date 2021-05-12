@@ -69,10 +69,15 @@ class _SettingsPageState extends State<SettingsPage> {
                 text: TextSpan(
               style: defaultStyle,
               children: <TextSpan>[
-                TextSpan(text: 'Registered to: '),
+                TextSpan(text: 'Registered: '),
                 TextSpan(
                     text: ((() {
-                      if (isAccountSaved) return savedName;
+                      if (isAccountSaved){
+                        if (savedName != '')
+                          return savedName;
+
+                        return "Yes";
+                      }
 
                       return "none";
                     })()),
