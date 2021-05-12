@@ -13,7 +13,14 @@ jobs:
       with:
         flutter-version: '2.0.6'
     - run: flutter pub get
-    - run: flutter build apk --release
+    - name: "Build on Android"
+      env:
+        OTPAPP_STORE_PASSWORD: ${{ secrets.OTPAPP_STORE_PASSWORD }}
+        OTPAPP_KEY_PASSWORD: ${{ secrets.OTPAPP_KEY_PASSWORD }}
+        OTPAPP_KEY_ALIAS: ${{ secrets.OTPAPP_KEY_ALIAS }}
+      run: |
+          export OTPAPP_STORE_PATH=$(pwd)/android/otpapp_keystore.jks
+          flutter build apk --release
     - run: flutter build ios --release --no-codesign
     - run: |
           mkdir -p Payload
