@@ -78,7 +78,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       if (sent && isClose) {
         Fluttertoast.showToast(
             msg: "OTP sent!",
-            toastLength: Toast.LENGTH_SHORT,
+            toastLength: Toast.LENGTH_LONG,
             gravity: ToastGravity.BOTTOM,
             timeInSecForIosWeb: 1,
             backgroundColor: Colors.red,
