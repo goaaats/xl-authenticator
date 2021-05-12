@@ -1,7 +1,8 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:prompt_dialog/prompt_dialog.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:xl_otpsend/account.dart';
@@ -22,11 +23,25 @@ class _SettingsPageState extends State<SettingsPage> {
 
   late bool isRestartChecked = false;
 
+  late bool isAccountSaved = false;
+  String? savedName;
+  String? savedSecret;
+
   @override
   void initState() {
     GeneralSetting.getIsAutoClose().then((value) {
       setState(() {
         isRestartChecked = value;
+      });
+    });
+
+    SavedAccount.getSaved().then((value) {
+      setState(() {
+        if (value != null) {
+          isAccountSaved = true;
+          savedName = value.accountName;
+          savedSecret = value.secret;
+        }
       });
     });
 
@@ -38,6 +53,9 @@ class _SettingsPageState extends State<SettingsPage> {
     TextStyle defaultStyle = TextStyle(color: Colors.grey, fontSize: 13.0);
     TextStyle linkStyle = TextStyle(color: Colors.blue, fontSize: 13.0);
 
+    TextStyle goodStyle = TextStyle(color: Colors.green, fontSize: 13.0);
+    TextStyle badStyle = TextStyle(color: Colors.red, fontSize: 13.0);
+
     return Scaffold(
       appBar: AppBar(
         title: Text("Settings"),
@@ -47,6 +65,39 @@ class _SettingsPageState extends State<SettingsPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            RichText(
+                text: TextSpan(
+              style: defaultStyle,
+              children: <TextSpan>[
+                TextSpan(text: 'Registered to: '),
+                TextSpan(
+                    text: ((() {
+                      if (isAccountSaved) return savedName;
+
+                      return "none";
+                    })()),
+                    style: ((() {
+                      if (isAccountSaved) return goodStyle;
+
+                      return badStyle;
+                    })()),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () {
+                        if (savedSecret != null) {
+                          Clipboard.setData(ClipboardData(text: savedSecret));
+
+                          Fluttertoast.showToast(
+                              msg: "Secret copied!",
+                              toastLength: Toast.LENGTH_LONG,
+                              gravity: ToastGravity.BOTTOM,
+                              timeInSecForIosWeb: 1,
+                              backgroundColor: Colors.red,
+                              textColor: Colors.white,
+                              fontSize: 16.0);
+                        }
+                      }),
+              ],
+            )),
             ElevatedButton(
               onPressed: () {
                 _navigateAndScanQr(context);
@@ -58,11 +109,31 @@ class _SettingsPageState extends State<SettingsPage> {
               child: FutureBuilder(
                 future: Communication.getSavedIp(),
                 builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    return Text("XIVLauncher IP: " + (snapshot.data as String));
-                  } else {
-                    return Text("XIVLauncher IP: <none set>");
-                  }
+                  return RichText(
+                      text: TextSpan(
+                    style: defaultStyle,
+                    children: <TextSpan>[
+                      TextSpan(text: 'XIVLauncher IP: '),
+                      TextSpan(
+                          text: ((() {
+                            if (snapshot.hasData)
+                              return snapshot.data as String;
+
+                            return "not set";
+                          })()),
+                          style: ((() {
+                            if (snapshot.hasData) return goodStyle;
+
+                            return badStyle;
+                          })()),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () {
+                              if (savedSecret != null)
+                                Clipboard.setData(
+                                    ClipboardData(text: savedSecret));
+                            }),
+                    ],
+                  ));
                 },
               ),
             ),
@@ -121,7 +192,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                 context: context,
                                 applicationName: "XL Authenticator",
                                 applicationLegalese:
-                                    "Automatic OTPs for XIVLauncher",
+                                    "Automatic OTPs for XIVLauncher\n(c) goaaats 2020",
                                 applicationIcon: Padding(
                                     padding:
                                         EdgeInsets.only(left: 100, right: 100),
@@ -161,14 +232,26 @@ class _SettingsPageState extends State<SettingsPage> {
 
     if (result == null) return;
 
+    SavedAccount? saved;
+
     switch (result.type) {
       case ScanResultType.Uri:
-        await SavedAccount.setSaved(SavedAccount.parse(result.data));
+        saved = SavedAccount.parse(result.data);
         break;
       case ScanResultType.Raw:
-        await SavedAccount.setSaved(SavedAccount.unnamed(result.data));
+        saved = SavedAccount.unnamed(result.data);
         break;
     }
+
+    setState(() {
+      if (saved != null) {
+        isAccountSaved = true;
+        savedName = saved.accountName;
+        savedSecret = saved.secret;
+      }
+    });
+
+    SavedAccount.setSaved(saved as SavedAccount);
 
     ScaffoldMessenger.of(context)
       ..removeCurrentSnackBar()
