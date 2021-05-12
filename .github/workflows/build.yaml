@@ -12,8 +12,17 @@ jobs:
     - uses: subosito/flutter-action@v1
       with:
         flutter-version: '2.0.6'
-    - run: flutter pub get
-    - name: "Build on Android"
+
+    - name: Set up Homebrew
+      id: set-up-homebrew
+      uses: Homebrew/actions/setup-homebrew@master
+    - name: Install ldid
+      run: brew install ldid
+
+    - name: Get dependencies
+      run: flutter pub get
+
+    - name: Build on Android
       env:
         OTPAPP_STORE_PASSWORD: ${{ secrets.OTPAPP_STORE_PASSWORD }}
         OTPAPP_KEY_PASSWORD: ${{ secrets.OTPAPP_KEY_PASSWORD }}
@@ -21,13 +30,20 @@ jobs:
       run: |
           export OTPAPP_STORE_PATH=$(pwd)/android/otpapp_keystore.jks
           flutter build apk --release
-    - run: flutter build ios --release --no-codesign
-    - run: |
+    - name: Build on iOS
+      run: flutter build ios --release --no-codesign
+    
+    - name: Resign IPA
+      run: find . -path './build/ios/iphoneos/Runner.app/*' -type f -exec sh -c "ldid -S -M \"{}\";" \;
+
+    - name: Make IPA
+      run: |
           mkdir -p Payload
           mv ./build/ios/iphoneos/Runner.app Payload
           zip -r -y Payload.zip Payload/Runner.app
           mv Payload.zip Payload.ipa
           mv build/app/outputs/flutter-apk/app-release.apk ./app-release.apk
+
     - uses: actions/upload-artifact@v2
       with:
         name: otpapp-artifact
