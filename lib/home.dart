@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -86,6 +88,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             fontSize: 16.0);
 
         SystemNavigator.pop();
+
+        // This is illegal but we're not on the App Store anyway
+        if (Platform.isIOS) {
+          exit(0);
+        }
       }
     } else {
       debugPrint("No secret found, opening settings");
