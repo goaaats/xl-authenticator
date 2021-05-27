@@ -3,7 +3,8 @@
    <application
         android:label="XL Authenticator"
         android:icon="@mipmap/ic_launcher"
-        android:usesCleartextTraffic="true">
+        android:usesCleartextTraffic="true"
+        android:fullBackupContent="@xml/backup_rules">
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
