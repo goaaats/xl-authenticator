@@ -1,3 +1,4 @@
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SavedAccount {
@@ -22,6 +23,29 @@ class SavedAccount {
   }
 
   static Future<SavedAccount?> getSaved() async {
+    var secure = new FlutterSecureStorage();
+
+    var secret = await secure.read(key: SavedAccount.SECRET_KEY);
+
+    if (secret == null) {
+      var saved = await getSavedInsecure();
+
+      if (saved != null) {
+        await setSaved(saved);
+      }
+
+      return saved;
+    }
+
+    var accountName = await secure.read(key: SavedAccount.ACCOUNTNAME_KEY);
+
+    if (accountName == null)
+      return SavedAccount.unnamed(secret);
+
+    return SavedAccount(accountName, secret);
+  }
+
+  static Future<SavedAccount?> getSavedInsecure() async {
     var prefs = await SharedPreferences.getInstance();
 
     if (!prefs.containsKey(SavedAccount.SECRET_KEY))
@@ -38,13 +62,17 @@ class SavedAccount {
   }
 
   static Future<void> setSaved(SavedAccount account) async {
+    var secure = new FlutterSecureStorage();
+    await secure.write(key: SavedAccount.SECRET_KEY, value: account.secret);
+    await secure.write(key: SavedAccount.ACCOUNTNAME_KEY, value: account.accountName);
+
     var prefs = await SharedPreferences.getInstance();
-    prefs.setString(SavedAccount.SECRET_KEY, account.secret as String);
-    prefs.setString(SavedAccount.ACCOUNTNAME_KEY, account.accountName as String);
+    await prefs.remove(SavedAccount.SECRET_KEY);
+    await prefs.remove(SavedAccount.ACCOUNTNAME_KEY);
   }
 
   @override
   String toString() {
-    return '${accountName as String} - ${secret as String}'; 
+    return '${accountName as String} - ${secret as String}';
   }
 }
