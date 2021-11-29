@@ -30,6 +30,9 @@ class _QRViewExampleState extends State<QRViewExample> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: (defaultTargetPlatform == TargetPlatform.windows)
+          ? AppBar(title: Text("Set-Up OTP Code"))
+          : null,
       body: Column(
         children: <Widget>[
           Expanded(flex: 4, child: _buildQrView(context)),
