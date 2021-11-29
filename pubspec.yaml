@@ -45,9 +45,6 @@ dependencies:
 
   flutter_secure_storage: ^5.0.2
 
-  # Windows installer generator
-  msix: ^2.6.3
-
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -92,9 +89,3 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
-
-msix_config:
-  display_name: XLOTP
-  publisher_display_name: Goatcorp
-  identity_name: github.goatcorp.xl-otpsend
-  msix_version: 1.0.5.6
