@@ -26,7 +26,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
 
   FlutterWindow window(project);
   Win32Window::Point origin(10, 10);
-  Win32Window::Size size(480, 720);
+  Win32Window::Size size(480, 640);
   if (!window.CreateAndShow(L"XIVLauncher Authenticator", origin, size)) {
     return EXIT_FAILURE;
   }
