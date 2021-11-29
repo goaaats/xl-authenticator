@@ -157,9 +157,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Padding(
-                padding: EdgeInsets.only(left: 100, right: 100),
-                child: Image(image: AssetImage('assets/logo.png'))),
+            Expanded(
+              child: Padding(
+                  padding: EdgeInsets.only(left: 100, right: 100),
+                  child: Image(image: AssetImage('assets/logo.png'))),
+            ),
             Padding(
               padding: EdgeInsets.only(top: 60),
               child: Text(
