@@ -90,7 +90,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         SystemNavigator.pop();
 
         // This is illegal but we're not on the App Store anyway
-        if (Platform.isIOS) {
+        if (Platform.isIOS || Platform.isWindows) {
           exit(0);
         }
       }
