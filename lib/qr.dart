@@ -30,6 +30,9 @@ class _QRViewExampleState extends State<QRViewExample> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: (defaultTargetPlatform == TargetPlatform.windows)
+          ? AppBar(title: Text("Set-Up OTP Code"))
+          : null,
       body: Column(
         children: <Widget>[
           Expanded(flex: 4, child: _buildQrView(context)),
@@ -100,6 +103,10 @@ class _QRViewExampleState extends State<QRViewExample> {
   }
 
   Widget _buildQrView(BuildContext context) {
+    if (defaultTargetPlatform == TargetPlatform.windows) {
+      return Container();
+    }
+
     // For this example we check how width or tall the device is and change the scanArea and overlay accordingly.
     var scanArea = (MediaQuery.of(context).size.width < 400 ||
             MediaQuery.of(context).size.height < 400)
