@@ -125,8 +125,8 @@ class _QRViewExampleState extends State<QRViewExample> {
     });
     controller.scannedDataStream.listen((scanData) {
       setState(() {
-        debugPrint("Scanned! " + scanData.code);
-        Navigator.pop(context, ScanResult.uri(scanData.code));
+        debugPrint("Scanned! " + scanData.code.toString());
+        Navigator.pop(context, ScanResult.uri(scanData.code.toString()));
       });
     });
   }
