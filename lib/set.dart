@@ -112,7 +112,7 @@ class _SettingsPageState extends State<SettingsPage> {
             Padding(
               padding: EdgeInsets.only(top: 40.0),
               child: FutureBuilder(
-                future: Communication.getSavedIp(),
+                future: Communication.getSavedIps(),
                 builder: (context, snapshot) {
                   return RichText(
                       text: TextSpan(
@@ -152,17 +152,20 @@ class _SettingsPageState extends State<SettingsPage> {
                     minLines: 1,
                     autoFocus: true,
                     textCapitalization: TextCapitalization.none,
-                    initialValue: await Communication.getSavedIp());
+                    initialValue: await Communication.getSavedIps());
 
                 if (result != null) {
                   debugPrint("Manual entry: $result");
                   setState(() {
-                    Communication.setSavedIp(result);
+                    Communication.setSavedIps(result);
                   });
                 }
               },
-              child: Text('Set XIVLauncher IP'),
+              child: Text('Set XIVLauncher IPs'),
             ),
+            RichText(
+                      text: TextSpan(style: defaultStyle, text: 'Note: You can set multiple IPs, seperated by ;'),
+                  ),
             Padding(
                 padding: EdgeInsets.only(top: 20.0),
                 child: Row(
