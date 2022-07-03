@@ -178,6 +178,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     Text("Close app after sending:"),
                     Checkbox(
                         value: isRestartChecked,
+                        activeColor: Colors.blueAccent,
                         onChanged: (value) {
                           setState(() {
                             isRestartChecked = value as bool;
