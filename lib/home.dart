@@ -151,17 +151,15 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title as String),
-        brightness: Brightness.dark,
       ),
-      body: Center(
+      body: SingleChildScrollView(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            Container(
+                padding: EdgeInsets.only(top: 100.0, left: 100.0, right: 100.0),
+                child: Image.asset("assets/logo.png", width: 200.0)),
             Padding(
-                padding: EdgeInsets.only(left: 100, right: 100),
-                child: Image(image: AssetImage('assets/logo.png'))),
-            Padding(
-              padding: EdgeInsets.only(top: 60),
+              padding: EdgeInsets.only(top: 60.0),
               child: Text(
                 'Your OTP:',
               ),
@@ -177,7 +175,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   semanticsLabel: 'Linear progress indicator',
                 )),
             Padding(
-              padding: const EdgeInsets.only(top: 15.0),
+              padding: const EdgeInsets.only(top: 15.0, bottom: 100.0),
               child: ElevatedButton(
                 onPressed: () async {
                   var res = await Communication.sendOtp(getCode());
