@@ -59,12 +59,15 @@ class _SettingsPageState extends State<SettingsPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Settings"),
-        brightness: Brightness.dark,
+        backgroundColor: Colors.blueAccent,
       ),
-      body: Center(
+      body: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            Padding(
+              padding: EdgeInsets.only(top: 100.0),
+            ),
             RichText(
                 text: TextSpan(
               style: defaultStyle,
@@ -176,6 +179,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     Text("Close app after sending:"),
                     Checkbox(
                         value: isRestartChecked,
+                        activeColor: Colors.blueAccent,
                         onChanged: (value) {
                           setState(() {
                             isRestartChecked = value as bool;
@@ -185,7 +189,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   ],
                 )),
             Padding(
-                padding: EdgeInsets.only(top: 50, left: 10, right: 10),
+                padding: EdgeInsets.only(top: 50, left: 10, right: 10, bottom: 100),
                 child: RichText(
                     text: TextSpan(
                   style: defaultStyle,
