@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSwatch().copyWith(primary: Colors.blueAccent, secondary: Colors.blueAccent),
       ),
       darkTheme: ThemeData(
-       brightness: Brightness.dark,
+        brightness: Brightness.dark,
         colorScheme: ColorScheme.dark(primary: Colors.blueAccent, secondary: Colors.blueAccent),
       ),
       home: HomePage(title: 'XIVLauncher Authenticator'),

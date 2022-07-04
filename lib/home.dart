@@ -151,6 +151,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title as String),
+        backgroundColor: Colors.blueAccent,
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -179,16 +180,20 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               child: ElevatedButton(
                 onPressed: () async {
                   var res = await Communication.sendOtp(getCode());
-
                   if (res) {
                     ScaffoldMessenger.of(context)
                       ..removeCurrentSnackBar()
-                      ..showSnackBar(SnackBar(content: Text("Sent!")));
+                      ..showSnackBar(SnackBar(
+                        content: Text("Sent!"),
+                        backgroundColor: Colors.black26,
+                      ));
                   } else {
                     ScaffoldMessenger.of(context)
                       ..removeCurrentSnackBar()
                       ..showSnackBar(SnackBar(
-                          content: Text("IP not set or connection failed")));
+                          content: Text("IP not set or connection failed"),
+                          backgroundColor: Colors.black26,
+                        ));
                   }
                 },
                 child: Text('Resend to XL'),
