@@ -185,14 +185,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       ..removeCurrentSnackBar()
                       ..showSnackBar(SnackBar(
                         content: Text("Sent!"),
-                        backgroundColor: Colors.black26,
+                        backgroundColor: Colors.blueAccent,
                       ));
                   } else {
                     ScaffoldMessenger.of(context)
                       ..removeCurrentSnackBar()
                       ..showSnackBar(SnackBar(
                           content: Text("IP not set or connection failed"),
-                          backgroundColor: Colors.black26,
+                          backgroundColor: Colors.blueAccent,
                         ));
                   }
                 },
