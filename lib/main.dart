@@ -12,11 +12,13 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'XL Authenticator',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
         brightness: Brightness.light,
+        primarySwatch: Colors.blue,
+        colorScheme: ColorScheme.fromSwatch().copyWith(primary: Colors.blueAccent, secondary: Colors.blueAccent),
       ),
       darkTheme: ThemeData(
-       brightness: Brightness.dark,
+        brightness: Brightness.dark,
+        colorScheme: ColorScheme.dark(primary: Colors.blueAccent, secondary: Colors.blueAccent),
       ),
       home: HomePage(title: 'XIVLauncher Authenticator'),
     );
