@@ -111,7 +111,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin, Widg
   }
 
   Future<void> forceAuthentication() async {
-    if (authStatus == AuthenticationStatus.DONE) {
+    if (!(await authentication.canCheckBiometrics) || authStatus == AuthenticationStatus.DONE) {
       return;
     }
     await GeneralSetting.getRequireBiometrics() &&
