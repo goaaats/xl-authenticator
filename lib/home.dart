@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:local_auth/local_auth.dart';
 import 'package:otp/otp.dart';
 import 'dart:async';
 
@@ -20,18 +21,26 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
+enum AuthenticationStatus {
+  DONE,
+  IN_PROGRESS,
+  NOT_AUTHENTICATED
+}
+
+class _HomePageState extends State<HomePage> with TickerProviderStateMixin, WidgetsBindingObserver {
   late AnimationController controller;
   late Stopwatch refreshStopwatch;
+  var authentication = new LocalAuthentication();
 
   String? savedSecret;
 
   int timeOffset = 0;
+  AuthenticationStatus authStatus = AuthenticationStatus.NOT_AUTHENTICATED;
 
   @override
   void initState() {
+    WidgetsBinding.instance.addObserver(this);
     setup();
-
     var startTimestep = getTimestep();
 
     timeOffset = (30000 * startTimestep).floor();
@@ -69,7 +78,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   Future<void> setup() async {
     var savedAccount = await SavedAccount.getSaved();
-
+    await forceAuthentication();
     if (savedAccount != null) {
       savedSecret = savedAccount.secret as String;
       showNewOtp();
@@ -101,6 +110,18 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     }
   }
 
+  Future<void> forceAuthentication() async {
+    if (authStatus == AuthenticationStatus.DONE) {
+      return;
+    }
+    await GeneralSetting.getRequireBiometrics() &&
+        await authentication.authenticate(
+            localizedReason:
+                "You must authenticate before using XL Authenticator.",
+            options: new AuthenticationOptions(stickyAuth: true));
+    authStatus = AuthenticationStatus.DONE;
+  }
+
   Future<void> openSettings() async {
     await Navigator.push(
       context,
@@ -113,6 +134,18 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       debugPrint("Updating secret...");
       savedSecret = savedAccount.secret;
     }
+  }
+
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
+    // switch (state) {
+    //   case AppLifecycleState.resumed:
+    //     await forceAuthentication();
+    //     break;
+    //   case AppLifecycleState.paused:
+    //     break;
+    // }
   }
 
   double getCurrentInterval() {
@@ -128,7 +161,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   String getCode() {
-    if (savedSecret == null) {
+    if (savedSecret == null || authStatus != AuthenticationStatus.DONE) {
       return "???";
     }
 

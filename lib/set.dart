@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:local_auth/local_auth.dart';
 import 'package:prompt_dialog/prompt_dialog.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -19,9 +20,13 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
+  final LocalAuthentication auth = LocalAuthentication();
+
   static const String REPO_LINK = "https://github.com/goaaats/xl-authenticator";
 
   late bool isRestartChecked = false;
+  late bool isBiometricsAvailable = false;
+  late bool isBiometricsRequired = false;
 
   late bool isAccountSaved = false;
   String? savedName;
@@ -29,11 +34,23 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   void initState() {
+    auth.canCheckBiometrics
+        .then((value) async => value || await auth.isDeviceSupported())
+        .then((value) => isBiometricsAvailable = value);
+
+
+    GeneralSetting.getRequireBiometrics().then((value) {
+      setState(() {
+        isBiometricsRequired = value;
+      });
+    });
+
     GeneralSetting.getIsAutoClose().then((value) {
       setState(() {
         isRestartChecked = value;
       });
     });
+
 
     SavedAccount.getSaved().then((value) {
       setState(() {
@@ -169,6 +186,7 @@ class _SettingsPageState extends State<SettingsPage> {
             RichText(
                       text: TextSpan(style: defaultStyle, text: 'Note: You can set multiple IPs, seperated by ;'),
                   ),
+            biometricsCheckBox() ?? SizedBox.shrink(),
             Padding(
                 padding: EdgeInsets.only(top: 20.0),
                 child: Row(
@@ -225,6 +243,30 @@ class _SettingsPageState extends State<SettingsPage> {
         ),
       ),
     );
+  }
+
+  Widget? biometricsCheckBox() {
+    if (!isBiometricsAvailable) return null;
+    return Padding(
+        padding: EdgeInsets.only(top: 20.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: 100,
+            ),
+            Text("Request biometric authentication:"),
+            Checkbox(
+                value: isBiometricsRequired,
+                activeColor: Colors.blueAccent,
+                onChanged: (value) {
+                  setState(() {
+                    isBiometricsRequired = value as bool;
+                    GeneralSetting.setRequireBiometrics(value);
+                  });
+                })
+          ],
+        ));
   }
 
   Future<void> _openRepoLink() async {
