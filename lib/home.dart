@@ -118,7 +118,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin, Widg
         await authentication.authenticate(
             localizedReason:
                 "You must authenticate before using XL Authenticator.",
-            options: new AuthenticationOptions(stickyAuth: true));
+            options: new AuthenticationOptions(stickyAuth: true, biometricOnly: true));
     authStatus = AuthenticationStatus.DONE;
   }
 
