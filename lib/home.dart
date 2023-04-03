@@ -143,13 +143,18 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin, Widg
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
-    // switch (state) {
-    //   case AppLifecycleState.resumed:
-    //     await forceAuthentication();
-    //     break;
-    //   case AppLifecycleState.paused:
-    //     break;
-    // }
+    switch (state) {
+      case AppLifecycleState.paused:
+        this.authStatus = AuthenticationStatus.NOT_AUTHENTICATED;
+        this._currentOtp = "???";
+        break;
+      default:
+        if (authStatus != AuthenticationStatus.DONE) {
+          await forceAuthentication();
+          showNewOtp();
+        }
+
+    }
   }
 
   double getCurrentInterval() {
