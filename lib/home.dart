@@ -114,11 +114,15 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin, Widg
     if (!(await authentication.canCheckBiometrics) || authStatus == AuthenticationStatus.DONE) {
       return;
     }
-    await GeneralSetting.getRequireBiometrics() &&
-        await authentication.authenticate(
+    if (await GeneralSetting.getRequireBiometrics()) {
+      var authenticated = false;
+      while (!authenticated) {
+        authenticated = await authentication.authenticate(
             localizedReason:
-                "You must authenticate before using XL Authenticator.",
+            "XL Authenticator is configured to require your biometrics.",
             options: new AuthenticationOptions(stickyAuth: true, biometricOnly: true));
+      }
+    }
     authStatus = AuthenticationStatus.DONE;
   }
 

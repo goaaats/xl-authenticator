@@ -252,9 +252,6 @@ class _SettingsPageState extends State<SettingsPage> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SizedBox(
-              width: 100,
-            ),
             Text("Request biometric authentication:"),
             Checkbox(
                 value: isBiometricsRequired,
