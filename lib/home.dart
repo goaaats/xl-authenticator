@@ -10,6 +10,7 @@ import 'dart:async';
 import 'package:xl_otpsend/account.dart';
 import 'package:xl_otpsend/communication.dart';
 import 'package:xl_otpsend/generalsetting.dart';
+import 'package:xl_otpsend/lifecycleauth.dart';
 import 'package:xl_otpsend/set.dart';
 
 class HomePage extends StatefulWidget {
@@ -18,7 +19,7 @@ class HomePage extends StatefulWidget {
   final String? title;
 
   @override
-  _HomePageState createState() => _HomePageState();
+  HomePageState createState() => HomePageState();
 }
 
 enum AuthenticationStatus {
@@ -27,10 +28,12 @@ enum AuthenticationStatus {
   NOT_AUTHENTICATED
 }
 
-class _HomePageState extends State<HomePage> with TickerProviderStateMixin, WidgetsBindingObserver {
+class HomePageState extends State<HomePage> with TickerProviderStateMixin, WidgetsBindingObserver {
   late AnimationController controller;
   late Stopwatch refreshStopwatch;
   var authentication = new LocalAuthentication();
+
+  static HomePageState? instance;
 
   String? savedSecret;
 
@@ -39,6 +42,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin, Widg
 
   @override
   void initState() {
+    instance = this;
     WidgetsBinding.instance.addObserver(this);
     setup();
     var startTimestep = getTimestep();
@@ -126,6 +130,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin, Widg
     authStatus = AuthenticationStatus.DONE;
   }
 
+  void updateOtp() {
+    this._currentOtp = getCode();
+  }
+
   Future<void> openSettings() async {
     await Navigator.push(
       context,
@@ -140,22 +148,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin, Widg
     }
   }
 
-
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
-    switch (state) {
-      case AppLifecycleState.paused:
-        this.authStatus = AuthenticationStatus.NOT_AUTHENTICATED;
-        this._currentOtp = "???";
-        break;
-      default:
-        if (authStatus != AuthenticationStatus.DONE) {
-          await forceAuthentication();
-          showNewOtp();
-        }
-
-    }
+    await lifecycleAuth(state);
   }
+
+
 
   double getCurrentInterval() {
     var ms = DateTime.now().millisecondsSinceEpoch;

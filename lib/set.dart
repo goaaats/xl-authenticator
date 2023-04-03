@@ -9,6 +9,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:xl_otpsend/account.dart';
 import 'package:xl_otpsend/communication.dart';
 import 'package:xl_otpsend/generalsetting.dart';
+import 'package:xl_otpsend/lifecycleauth.dart';
 import 'package:xl_otpsend/qr.dart';
 import 'package:xl_otpsend/scanresult.dart';
 
@@ -19,7 +20,7 @@ class SettingsPage extends StatefulWidget {
   _SettingsPageState createState() => _SettingsPageState();
 }
 
-class _SettingsPageState extends State<SettingsPage> {
+class _SettingsPageState extends State<SettingsPage> with WidgetsBindingObserver {
   final LocalAuthentication auth = LocalAuthentication();
 
   static const String REPO_LINK = "https://github.com/goaaats/xl-authenticator";
@@ -63,6 +64,12 @@ class _SettingsPageState extends State<SettingsPage> {
     });
 
     super.initState();
+  }
+
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    lifecycleAuth(state);
   }
 
   @override
