@@ -29,7 +29,7 @@ class Communication {
 
     List<String>? ipList = ips.split(';');
 
-    for (var currentIp = 0; currentIp < ips.length; currentIp++) {
+    for (var currentIp = 0; currentIp < ipList.length; currentIp++) {
       var ip = ipList[currentIp];
       var uri = Uri.http("$ip:4646", "ffxivlauncher/$otp");
       try {
