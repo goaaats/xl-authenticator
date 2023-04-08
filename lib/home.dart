@@ -74,7 +74,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin, Widge
 
   Future<void> setup() async {
     var savedAccount = await SavedAccount.getSaved();
-    await Authentication.instance.forceAuthentication();
+    await Biometrics.instance.forceAuthentication();
     if (savedAccount != null) {
       savedSecret = savedAccount.secret as String;
       showNewOtp();
@@ -127,7 +127,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin, Widge
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
-    await Authentication.instance.lifecycleAuth(state);
+    await Biometrics.instance.lifecycleAuth(state);
   }
 
 
@@ -145,7 +145,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin, Widge
   }
 
   String getCode() {
-    if (savedSecret == null || Authentication.instance.authStatus != AuthenticationStatus.DONE) {
+    if (savedSecret == null || Biometrics.instance.authStatus != BiometricsAuthStatus.DONE) {
       return "???";
     }
 

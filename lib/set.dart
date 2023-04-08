@@ -69,7 +69,7 @@ class _SettingsPageState extends State<SettingsPage> with WidgetsBindingObserver
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    Authentication.instance.lifecycleAuth(state);
+    Biometrics.instance.lifecycleAuth(state);
   }
 
   @override
@@ -264,9 +264,12 @@ class _SettingsPageState extends State<SettingsPage> with WidgetsBindingObserver
                 value: isBiometricsRequired,
                 activeColor: Colors.blueAccent,
                 onChanged: (value) {
-                  setState(() {
-                    isBiometricsRequired = value as bool;
-                    GeneralSetting.setRequireBiometrics(value);
+                  setState(() async {
+                    var boolValue = value as bool;
+                    if (boolValue) {
+                      isBiometricsRequired = await Biometrics.instance.authenticate();
+                    }
+                    GeneralSetting.setRequireBiometrics(isBiometricsRequired);
                   });
                 })
           ],

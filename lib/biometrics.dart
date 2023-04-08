@@ -6,17 +6,17 @@ import 'package:local_auth/local_auth.dart';
 import 'generalsetting.dart';
 import 'home.dart';
 
-enum AuthenticationStatus {
+enum BiometricsAuthStatus {
   DONE,
   IN_PROGRESS,
   NOT_AUTHENTICATED
 }
 
-class Authentication {
+class Biometrics {
 
-  static Authentication instance = new Authentication();
+  static Biometrics instance = new Biometrics();
 
-  AuthenticationStatus authStatus = AuthenticationStatus.NOT_AUTHENTICATED;
+  BiometricsAuthStatus authStatus = BiometricsAuthStatus.NOT_AUTHENTICATED;
 
   var authentication = new LocalAuthentication();
 
@@ -28,11 +28,11 @@ class Authentication {
         homePageState.updateOtp();
         break;
       case AppLifecycleState.paused:
-        authStatus = AuthenticationStatus.NOT_AUTHENTICATED;
+        authStatus = BiometricsAuthStatus.NOT_AUTHENTICATED;
         homePageState.updateOtp();
         break;
       default:
-        if (authStatus != AuthenticationStatus.DONE) {
+        if (authStatus != BiometricsAuthStatus.DONE) {
           await forceAuthentication();
           homePageState.updateOtp();
         }
@@ -40,19 +40,23 @@ class Authentication {
   }
 
   Future<void> forceAuthentication() async {
-    if (!(await authentication.canCheckBiometrics) || authStatus == AuthenticationStatus.DONE) {
+    if (!(await authentication.canCheckBiometrics) || authStatus == BiometricsAuthStatus.DONE) {
       return;
     }
     if (await GeneralSetting.getRequireBiometrics()) {
       var authenticated = false;
       while (!authenticated) {
-        authenticated = await authentication.authenticate(
-            localizedReason:
-            "XL Authenticator is configured to require your biometrics.",
-            options: new AuthenticationOptions(stickyAuth: true, biometricOnly: true));
+        authenticated = await authenticate();
       }
     }
-    authStatus = AuthenticationStatus.DONE;
+    authStatus = BiometricsAuthStatus.DONE;
+  }
+
+  Future<bool> authenticate() {
+    return authentication.authenticate(
+          localizedReason:
+          "XL Authenticator is configured to require your biometrics.",
+          options: new AuthenticationOptions(stickyAuth: true, biometricOnly: true));
   }
 
 }
