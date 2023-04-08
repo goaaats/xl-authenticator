@@ -9,7 +9,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:xl_otpsend/account.dart';
 import 'package:xl_otpsend/communication.dart';
 import 'package:xl_otpsend/generalsetting.dart';
-import 'package:xl_otpsend/lifecycleauth.dart';
+import 'package:xl_otpsend/biometrics.dart';
 import 'package:xl_otpsend/qr.dart';
 import 'package:xl_otpsend/scanresult.dart';
 
@@ -69,7 +69,7 @@ class _SettingsPageState extends State<SettingsPage> with WidgetsBindingObserver
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    lifecycleAuth(state);
+    Authentication.instance.lifecycleAuth(state);
   }
 
   @override

@@ -3,14 +3,13 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:local_auth/local_auth.dart';
 import 'package:otp/otp.dart';
 import 'dart:async';
 
 import 'package:xl_otpsend/account.dart';
 import 'package:xl_otpsend/communication.dart';
 import 'package:xl_otpsend/generalsetting.dart';
-import 'package:xl_otpsend/lifecycleauth.dart';
+import 'package:xl_otpsend/biometrics.dart';
 import 'package:xl_otpsend/set.dart';
 
 class HomePage extends StatefulWidget {
@@ -22,23 +21,16 @@ class HomePage extends StatefulWidget {
   HomePageState createState() => HomePageState();
 }
 
-enum AuthenticationStatus {
-  DONE,
-  IN_PROGRESS,
-  NOT_AUTHENTICATED
-}
 
 class HomePageState extends State<HomePage> with TickerProviderStateMixin, WidgetsBindingObserver {
   late AnimationController controller;
   late Stopwatch refreshStopwatch;
-  var authentication = new LocalAuthentication();
 
   static HomePageState? instance;
 
   String? savedSecret;
 
   int timeOffset = 0;
-  AuthenticationStatus authStatus = AuthenticationStatus.NOT_AUTHENTICATED;
 
   @override
   void initState() {
@@ -82,7 +74,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin, Widge
 
   Future<void> setup() async {
     var savedAccount = await SavedAccount.getSaved();
-    await forceAuthentication();
+    await Authentication.instance.forceAuthentication();
     if (savedAccount != null) {
       savedSecret = savedAccount.secret as String;
       showNewOtp();
@@ -114,21 +106,6 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin, Widge
     }
   }
 
-  Future<void> forceAuthentication() async {
-    if (!(await authentication.canCheckBiometrics) || authStatus == AuthenticationStatus.DONE) {
-      return;
-    }
-    if (await GeneralSetting.getRequireBiometrics()) {
-      var authenticated = false;
-      while (!authenticated) {
-        authenticated = await authentication.authenticate(
-            localizedReason:
-            "XL Authenticator is configured to require your biometrics.",
-            options: new AuthenticationOptions(stickyAuth: true, biometricOnly: true));
-      }
-    }
-    authStatus = AuthenticationStatus.DONE;
-  }
 
   void updateOtp() {
     this._currentOtp = getCode();
@@ -150,7 +127,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin, Widge
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
-    await lifecycleAuth(state);
+    await Authentication.instance.lifecycleAuth(state);
   }
 
 
@@ -168,7 +145,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin, Widge
   }
 
   String getCode() {
-    if (savedSecret == null || authStatus != AuthenticationStatus.DONE) {
+    if (savedSecret == null || Authentication.instance.authStatus != AuthenticationStatus.DONE) {
       return "???";
     }
 
