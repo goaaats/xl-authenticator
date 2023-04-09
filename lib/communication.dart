@@ -27,24 +27,25 @@ class Communication {
     if (ips == null)
       return false;
 
-    List<String>? ipList = ips.split(';');
+    List<String> ipList = ips.split(";");
+    return await Future.any(ipList.map((e) => sendOtpToIp(otp, e)));
+  }
 
-    for (var currentIp = 0; currentIp < ips.length; currentIp++) {
-      var ip = ipList[currentIp];
-      var uri = Uri.http("$ip:4646", "ffxivlauncher/$otp");
-      try {
-        await http.get(uri);
-      } on http
-          .ClientException catch (e) { // This happens since the XL http server is badly implemented, no problem though
-        developer.log('ClientException: ' + uri.toString(),
-            name: 'com.goatsoft.xl_otpsend', error: e);
-        return true;
-      }
-      catch (e) {
-        developer.log('could not send to: ' + uri.toString(),
-            name: 'com.goatsoft.xl_otpsend', error: e);
-      }
+  static Future<bool> sendOtpToIp(String otp, String ip) async {
+    var uri = Uri.http("$ip:4646", "ffxivlauncher/$otp");
+    try {
+      await http.get(uri).timeout(const Duration(seconds: 5));
+      return true;
+    } on http
+        .ClientException catch (e) { // This happens since the XL http server is badly implemented, no problem though
+      developer.log('ClientException: ' + uri.toString(),
+          name: 'com.goatsoft.xl_otpsend', error: e);
+      return true;
     }
-    return true;
+    catch (e) {
+      developer.log('could not send to: ' + uri.toString(),
+          name: 'com.goatsoft.xl_otpsend', error: e);
+    }
+    return false;
   }
 }
