@@ -263,14 +263,20 @@ class _SettingsPageState extends State<SettingsPage> with WidgetsBindingObserver
             Checkbox(
                 value: isBiometricsRequired,
                 activeColor: Colors.blueAccent,
-                onChanged: (value) {
-                  setState(() async {
-                    var boolValue = value as bool;
-                    if (boolValue) {
-                      isBiometricsRequired = await Biometrics.instance.authenticate();
-                    }
-                    GeneralSetting.setRequireBiometrics(isBiometricsRequired);
-                  });
+                onChanged: (value) async {
+                  var boolValue = value as bool;
+                  if (boolValue) {
+                    var state = await Biometrics.instance.authenticate();
+                    setState(() {
+                      GeneralSetting.setRequireBiometrics(state);
+                      isBiometricsRequired = state;
+                    });
+                  } else {
+                    setState(() {
+                      GeneralSetting.setRequireBiometrics(boolValue);
+                      isBiometricsRequired = boolValue;
+                    });
+                  }
                 })
           ],
         ));
