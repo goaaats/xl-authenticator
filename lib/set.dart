@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:local_auth/local_auth.dart';
 import 'package:prompt_dialog/prompt_dialog.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -8,6 +9,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:xl_otpsend/account.dart';
 import 'package:xl_otpsend/communication.dart';
 import 'package:xl_otpsend/generalsetting.dart';
+import 'package:xl_otpsend/biometrics.dart';
 import 'package:xl_otpsend/qr.dart';
 import 'package:xl_otpsend/scanresult.dart';
 
@@ -18,10 +20,14 @@ class SettingsPage extends StatefulWidget {
   _SettingsPageState createState() => _SettingsPageState();
 }
 
-class _SettingsPageState extends State<SettingsPage> {
+class _SettingsPageState extends State<SettingsPage> with WidgetsBindingObserver {
+  final LocalAuthentication auth = LocalAuthentication();
+
   static const String REPO_LINK = "https://github.com/goaaats/xl-authenticator";
 
   late bool isRestartChecked = false;
+  late bool isBiometricsAvailable = false;
+  late bool isBiometricsRequired = false;
 
   late bool isAccountSaved = false;
   String? savedName;
@@ -29,11 +35,23 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   void initState() {
+    auth.canCheckBiometrics
+        .then((value) async => value || await auth.isDeviceSupported())
+        .then((value) => isBiometricsAvailable = value);
+
+
+    GeneralSetting.getRequireBiometrics().then((value) {
+      setState(() {
+        isBiometricsRequired = value;
+      });
+    });
+
     GeneralSetting.getIsAutoClose().then((value) {
       setState(() {
         isRestartChecked = value;
       });
     });
+
 
     SavedAccount.getSaved().then((value) {
       setState(() {
@@ -46,6 +64,12 @@ class _SettingsPageState extends State<SettingsPage> {
     });
 
     super.initState();
+  }
+
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    Biometrics.instance.lifecycleAuth(state);
   }
 
   @override
@@ -169,6 +193,7 @@ class _SettingsPageState extends State<SettingsPage> {
             RichText(
                       text: TextSpan(style: defaultStyle, text: 'Note: You can set multiple IPs, seperated by ;'),
                   ),
+            biometricsCheckBox() ?? SizedBox.shrink(),
             Padding(
                 padding: EdgeInsets.only(top: 20.0),
                 child: Row(
@@ -225,6 +250,36 @@ class _SettingsPageState extends State<SettingsPage> {
         ),
       ),
     );
+  }
+
+  Widget? biometricsCheckBox() {
+    if (!isBiometricsAvailable) return null;
+    return Padding(
+        padding: EdgeInsets.only(top: 20.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text("Request biometric authentication:"),
+            Checkbox(
+                value: isBiometricsRequired,
+                activeColor: Colors.blueAccent,
+                onChanged: (value) async {
+                  var boolValue = value as bool;
+                  if (boolValue) {
+                    var state = await Biometrics.instance.authenticate();
+                    setState(() {
+                      GeneralSetting.setRequireBiometrics(state);
+                      isBiometricsRequired = state;
+                    });
+                  } else {
+                    setState(() {
+                      GeneralSetting.setRequireBiometrics(boolValue);
+                      isBiometricsRequired = boolValue;
+                    });
+                  }
+                })
+          ],
+        ));
   }
 
   Future<void> _openRepoLink() async {

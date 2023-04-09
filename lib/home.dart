@@ -9,6 +9,7 @@ import 'dart:async';
 import 'package:xl_otpsend/account.dart';
 import 'package:xl_otpsend/communication.dart';
 import 'package:xl_otpsend/generalsetting.dart';
+import 'package:xl_otpsend/biometrics.dart';
 import 'package:xl_otpsend/set.dart';
 
 class HomePage extends StatefulWidget {
@@ -17,12 +18,15 @@ class HomePage extends StatefulWidget {
   final String? title;
 
   @override
-  _HomePageState createState() => _HomePageState();
+  HomePageState createState() => HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
+
+class HomePageState extends State<HomePage> with TickerProviderStateMixin, WidgetsBindingObserver {
   late AnimationController controller;
   late Stopwatch refreshStopwatch;
+
+  static HomePageState? instance;
 
   String? savedSecret;
 
@@ -30,8 +34,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   @override
   void initState() {
+    instance = this;
+    WidgetsBinding.instance.addObserver(this);
     setup();
-
     var startTimestep = getTimestep();
 
     timeOffset = (30000 * startTimestep).floor();
@@ -69,7 +74,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   Future<void> setup() async {
     var savedAccount = await SavedAccount.getSaved();
-
+    await Biometrics.instance.forceAuthentication();
     if (savedAccount != null) {
       savedSecret = savedAccount.secret as String;
       showNewOtp();
@@ -101,6 +106,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     }
   }
 
+
+  void updateOtp() {
+    this._currentOtp = getCode();
+  }
+
   Future<void> openSettings() async {
     await Navigator.push(
       context,
@@ -115,6 +125,13 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     }
   }
 
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
+    await Biometrics.instance.lifecycleAuth(state);
+  }
+
+
+
   double getCurrentInterval() {
     var ms = DateTime.now().millisecondsSinceEpoch;
 
@@ -128,7 +145,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   String getCode() {
-    if (savedSecret == null) {
+    if (savedSecret == null || Biometrics.instance.authStatus != BiometricsAuthStatus.DONE) {
       return "???";
     }
 

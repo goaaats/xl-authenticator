@@ -44,6 +44,7 @@ dependencies:
   url_launcher: ^6.0.3
 
   flutter_secure_storage: ^5.0.2
+  local_auth: ^2.1.6
 
 dev_dependencies:
   flutter_test:
